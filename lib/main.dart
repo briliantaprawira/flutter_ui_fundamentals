@@ -14,27 +14,27 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Tahap2Page(),
+      home: Tahap3Page(),
     );
   }
 }
 
-// 1. PARENT WIDGET: Pemilik State (State Owner)
-class Tahap2Page extends StatefulWidget {
-  const Tahap2Page({super.key});
+// PARENT WIDGET: Bertindak sebagai Single Source of Truth
+class Tahap3Page extends StatefulWidget {
+  const Tahap3Page({super.key});
 
   @override
-  State<Tahap2Page> createState() => _Tahap2PageState();
+  State<Tahap3Page> createState() => _Tahap3PageState();
 }
 
-class _Tahap2PageState extends State<Tahap2Page> {
-  // Shared State: Data favorit disimpan di Parent
-  int _favoriteCount = 0;
+class _Tahap3PageState extends State<Tahap3Page> {
+  // Satu-satunya sumber data (Single Source of Truth)
+  bool _isFavorite = false;
 
-  // Fungsi untuk mengubah state
-  void _tambahFavorit() {
+  // Callback untuk mengubah state di parent
+  void _toggleFavorite() {
     setState(() {
-      _favoriteCount++;
+      _isFavorite = !_isFavorite;
     });
   }
 
@@ -42,8 +42,8 @@ class _Tahap2PageState extends State<Tahap2Page> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 2: Masalah setState'),
-        backgroundColor: Colors.redAccent,
+        title: const Text('Tahap 3: Lifting State Up'),
+        backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -58,12 +58,15 @@ class _Tahap2PageState extends State<Tahap2Page> {
             ),
             const SizedBox(height: 20),
 
-            // Melempar state ke Child 1
-            FavoriteSummaryWidget(count: _favoriteCount),
-            const Divider(height: 40, thickness: 2),
+            // Child 1: Hanya membaca state untuk menampilkan status
+            StatusWidget(isFav: _isFavorite),
+            const SizedBox(height: 20),
 
-            // Melempar state DAN callback ke Child 2
-            CourseListWidget(onFavoriteToggled: _tambahFavorit),
+            // Child 2: Membaca state DAN menerima callback untuk mengubahnya
+            CourseCard(
+              isFavorite: _isFavorite,
+              onFavoriteChanged: _toggleFavorite,
+            ),
           ],
         ),
       ),
@@ -71,62 +74,46 @@ class _Tahap2PageState extends State<Tahap2Page> {
   }
 }
 
-// 2. CHILD 1: Hanya Menerima Data
-class FavoriteSummaryWidget extends StatelessWidget {
-  final int count; // Menerima data dari Parent
-
-  const FavoriteSummaryWidget({super.key, required this.count});
+// CHILD 1
+class StatusWidget extends StatelessWidget {
+  final bool isFav;
+  const StatusWidget({super.key, required this.isFav});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Colors.red.shade50,
+      color: isFav ? Colors.green.shade100 : Colors.grey.shade200,
       child: Text(
-        'Total Course Favorit: $count',
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        isFav ? 'Status: Mata Kuliah Difavoritkan! 💚' : 'Status: Belum Difavoritkan 🤍',
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
       ),
     );
   }
 }
 
-// 3. CHILD 2: Menerima Callback untuk dilempar lagi (Prop Drilling)
-class CourseListWidget extends StatelessWidget {
-  final VoidCallback onFavoriteToggled; // Menerima callback dari Parent
+// CHILD 2
+class CourseCard extends StatelessWidget {
+  final bool isFavorite;
+  final VoidCallback onFavoriteChanged;
 
-  const CourseListWidget({super.key, required this.onFavoriteToggled});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Daftar Course:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        // Melempar callback lagi ke Grandchild (Cucu)
-        CourseCardWidget(courseName: 'Dart Fundamentals', onFavoriteToggled: onFavoriteToggled),
-        CourseCardWidget(courseName: 'Flutter UI', onFavoriteToggled: onFavoriteToggled),
-      ],
-    );
-  }
-}
-
-// 4. GRANDCHILD: Widget terdalam yang sebenarnya memicu aksi
-class CourseCardWidget extends StatelessWidget {
-  final String courseName;
-  final VoidCallback onFavoriteToggled; // Menerima callback dari Parent-nya (CourseListWidget)
-
-  const CourseCardWidget({super.key, required this.courseName, required this.onFavoriteToggled});
+  const CourseCard({super.key, required this.isFavorite, required this.onFavoriteChanged});
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 4,
       child: ListTile(
-        title: Text(courseName),
+        leading: const Icon(Icons.book, color: Colors.green),
+        title: const Text('State Management'),
+        subtitle: const Text('Tekan ikon hati di kanan ->'),
         trailing: IconButton(
-          icon: const Icon(Icons.favorite_border, color: Colors.redAccent),
-          onPressed: onFavoriteToggled, // Memicu callback yang akan berantai memanggil _tambahFavorit di Tahap2Page
+          icon: Icon(
+            isFavorite ? Icons.favorite : Icons.favorite_border,
+            color: isFavorite ? Colors.red : Colors.grey,
+          ),
+          onPressed: onFavoriteChanged,
         ),
       ),
     );
