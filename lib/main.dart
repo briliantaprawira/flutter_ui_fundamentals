@@ -14,94 +14,77 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Tahap16Page(),
+      home: Tahap1Page(),
     );
   }
 }
 
-// --- HALAMAN UTAMA ---
-class Tahap16Page extends StatelessWidget {
-  const Tahap16Page({super.key});
+// TAHAP 1: Menggunakan StatefulWidget untuk mengelola Local State
+class Tahap1Page extends StatefulWidget {
+  const Tahap1Page({super.key});
+
+  @override
+  State<Tahap1Page> createState() => _Tahap1PageState();
+}
+
+class _Tahap1PageState extends State<Tahap1Page> {
+  // Ini adalah LOCAL STATE: Data yang hanya dipakai di dalam widget ini saja
+  bool _showDescription = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 16: Hero Animation'),
-        backgroundColor: Colors.deepPurpleAccent,
+        title: const Text('Tahap 1: Local State'),
+        backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Identitas Mahasiswa
             const Text(
-              '$studentId - $studentName',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                '$studentId - $studentName',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
             ),
-            const SizedBox(height: 40),
-            const Text('Ketuk ikon roket di bawah ini:', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 20),
 
-            // TAHAP 16: Membungkus elemen dengan widget Hero
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Tahap16DetailPage()),
-                );
+            const Card(
+              child: ListTile(
+                leading: Icon(Icons.book, color: Colors.blue),
+                title: Text('Dart Fundamentals'),
+                subtitle: Text('MOB01 - 2 SKS'),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Tombol untuk mengubah Local State
+            ElevatedButton(
+              onPressed: () {
+                // Memanggil setState() akan memerintahkan Flutter untuk me-rebuild UI
+                setState(() {
+                  _showDescription = !_showDescription;
+                });
               },
-              child: const Hero(
-                tag: 'roket-hero', // Identitas unik yang menghubungkan kedua halaman
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.deepPurpleAccent,
-                  child: Icon(Icons.rocket_launch, size: 40, color: Colors.white),
+              child: Text(_showDescription ? 'Sembunyikan Deskripsi' : 'Tampilkan Deskripsi'),
+            ),
+            const SizedBox(height: 16),
+
+            // UI yang muncul/hilang bergantung pada nilai _showDescription
+            if (_showDescription)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Ini adalah deskripsi mata kuliah. \nTampilan ini dikendalikan oleh Local State menggunakan fungsi setState().',
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// --- HALAMAN DETAIL ---
-class Tahap16DetailPage extends StatelessWidget {
-  const Tahap16DetailPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Hero'),
-        backgroundColor: Colors.deepPurpleAccent,
-        foregroundColor: Colors.white,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // TAHAP 16: Hero di halaman tujuan menangkap tag yang sama persis
-            const Hero(
-              tag: 'roket-hero', // Tag ini HARUS sama dengan yang ada di Halaman Utama
-              child: CircleAvatar(
-                radius: 120, // Ukurannya kita perbesar di halaman detail
-                backgroundColor: Colors.deepPurpleAccent,
-                child: Icon(Icons.rocket_launch, size: 120, color: Colors.white),
-              ),
-            ),
-            const SizedBox(height: 40),
-            const Text('Animasi Hero Berhasil! 🚀', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Perhatikan bagaimana ikon roket tadi bergerak membesar dari halaman sebelumnya secara mulus tanpa terputus.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
           ],
         ),
       ),
