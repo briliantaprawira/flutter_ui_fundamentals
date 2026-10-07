@@ -14,37 +14,39 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Tahap3Page(),
+      home: Tahap4Page(),
     );
   }
 }
 
-// PARENT WIDGET: Bertindak sebagai Single Source of Truth
-class Tahap3Page extends StatefulWidget {
-  const Tahap3Page({super.key});
+class Tahap4Page extends StatefulWidget {
+  const Tahap4Page({super.key});
 
   @override
-  State<Tahap3Page> createState() => _Tahap3PageState();
+  State<Tahap4Page> createState() => _Tahap4PageState();
 }
 
-class _Tahap3PageState extends State<Tahap3Page> {
-  // Satu-satunya sumber data (Single Source of Truth)
-  bool _isFavorite = false;
+class _Tahap4PageState extends State<Tahap4Page> {
+  // TAHAP 4: Menggunakan ValueNotifier untuk mengelola satu nilai sederhana
+  final ValueNotifier<int> _favoriteCount = ValueNotifier<int>(0);
 
-  // Callback untuk mengubah state di parent
-  void _toggleFavorite() {
-    setState(() {
-      _isFavorite = !_isFavorite;
-    });
+  @override
+  void dispose() {
+    // Jangan lupa membuang (dispose) notifier saat widget dihancurkan untuk mencegah memory leak
+    _favoriteCount.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Pesan ini hanya akan dicetak sekali di terminal (membuktikan UI tidak direbuild total)
+    debugPrint('--> build() utama Tahap4Page dijalankan');
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 3: Lifting State Up'),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
+        title: const Text('Tahap 4: ValueNotifier'),
+        backgroundColor: Colors.amber,
+        foregroundColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -56,64 +58,46 @@ class _Tahap3PageState extends State<Tahap3Page> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
 
-            // Child 1: Hanya membaca state untuk menampilkan status
-            StatusWidget(isFav: _isFavorite),
-            const SizedBox(height: 20),
+            // TAHAP 4: ValueListenableBuilder akan mendengarkan perubahan pada _favoriteCount
+            ValueListenableBuilder<int>(
+              valueListenable: _favoriteCount,
+              builder: (context, value, child) {
+                // Pesan ini akan dicetak berulang kali setiap tombol ditekan
+                debugPrint('--> ValueListenableBuilder merender ulang angka $value');
+                return Container(
+                  padding: const EdgeInsets.all(24),
+                  color: Colors.amber.shade100,
+                  child: Column(
+                    children: [
+                      const Text('Jumlah Course Favorit:', style: TextStyle(fontSize: 18)),
+                      Text(
+                        '$value',
+                        style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.amber),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
 
-            // Child 2: Membaca state DAN menerima callback untuk mengubahnya
-            CourseCard(
-              isFavorite: _isFavorite,
-              onFavoriteChanged: _toggleFavorite,
+            const SizedBox(height: 30),
+
+            ElevatedButton.icon(
+              onPressed: () {
+                // Mengubah value secara langsung, TANPA PERLU MEMANGGIL setState()
+                _favoriteCount.value++;
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Tambah Nilai Favorit'),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 16)
+              ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// CHILD 1
-class StatusWidget extends StatelessWidget {
-  final bool isFav;
-  const StatusWidget({super.key, required this.isFav});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: isFav ? Colors.green.shade100 : Colors.grey.shade200,
-      child: Text(
-        isFav ? 'Status: Mata Kuliah Difavoritkan! 💚' : 'Status: Belum Difavoritkan 🤍',
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-}
-
-// CHILD 2
-class CourseCard extends StatelessWidget {
-  final bool isFavorite;
-  final VoidCallback onFavoriteChanged;
-
-  const CourseCard({super.key, required this.isFavorite, required this.onFavoriteChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: ListTile(
-        leading: const Icon(Icons.book, color: Colors.green),
-        title: const Text('State Management'),
-        subtitle: const Text('Tekan ikon hati di kanan ->'),
-        trailing: IconButton(
-          icon: Icon(
-            isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: isFavorite ? Colors.red : Colors.grey,
-          ),
-          onPressed: onFavoriteChanged,
         ),
       ),
     );
