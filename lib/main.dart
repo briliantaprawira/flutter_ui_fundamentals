@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'course_provider.dart';
+import 'models/course.dart'; // Import model yang baru dibuat
 
 const String studentName = 'Kadek Brilianta Prawira Arta';
 const String studentId = '2415051013';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => CourseProvider(),
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -21,22 +15,31 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Tahap7Page(),
+      home: Tahap8Page(),
     );
   }
 }
 
-class Tahap7Page extends StatelessWidget {
-  const Tahap7Page({super.key});
+class Tahap8Page extends StatelessWidget {
+  const Tahap8Page({super.key});
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('--> build() utama Tahap7Page dipanggil');
+    // TAHAP 8: Simulasi data mentah yang biasanya didapat dari file JSON atau API
+    final Map<String, dynamic> rawJsonData = {
+      "code": "MOB08",
+      "title": "State Management Architecture",
+      "credits": 3,
+      "status": "Active"
+    };
+
+    // Mengubah JSON (Map) menjadi Object Course menggunakan factory fromJson
+    final Course parsedCourse = Course.fromJson(rawJsonData);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 7: watch vs read'),
-        backgroundColor: Colors.deepOrange,
+        title: const Text('Tahap 8: Model Course'),
+        backgroundColor: Colors.blueGrey,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -49,65 +52,37 @@ class Tahap7Page extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20),
-
-            // 1. Menggunakan Consumer: Membatasi rebuild HANYA pada Container ini
-            Consumer<CourseProvider>(
-              builder: (context, provider, child) {
-                debugPrint('--> Consumer merender ulang teks jumlah');
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.deepOrange.shade50,
-                  child: Text(
-                    'Total Favorit (via Consumer): ${provider.favorites.length}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 20),
-
-            // 2. Menggunakan Widget terpisah yang memakai context.watch()
-            const WatcherWidget(),
-
             const SizedBox(height: 30),
 
-            ElevatedButton.icon(
-              onPressed: () {
-                // 3. Menggunakan context.read(): Memanggil aksi TANPA mendengarkan perubahan (tidak ikut ter-rebuild)
-                context.read<CourseProvider>().toggleFavorite('MOB07');
-              },
-              icon: const Icon(Icons.touch_app),
-              label: const Text('Ubah State dengan context.read()'),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16)
+            const Text(
+              'Data Hasil Parsing JSON ke Object Model:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+
+            // Menampilkan data yang sudah menjadi Object Course
+            Card(
+              elevation: 4,
+              color: Colors.blueGrey.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Kita tidak lagi memanggil parsedCourse['code'], melainkan langsung menggunakan properti .code
+                    Text('Kode: ${parsedCourse.code}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text('Judul: ${parsedCourse.title}', style: const TextStyle(fontSize: 18)),
+                    const SizedBox(height: 8),
+                    Text('SKS: ${parsedCourse.credits}', style: const TextStyle(fontSize: 18)),
+                    const SizedBox(height: 8),
+                    Text('Status: ${parsedCourse.status}', style: const TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// Widget kecil untuk menguji context.watch()
-class WatcherWidget extends StatelessWidget {
-  const WatcherWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // MENGGUNAKAN WATCH: Mendengarkan data. Jika data berubah, widget ini akan di-rebuild.
-    final provider = context.watch<CourseProvider>();
-    debugPrint('--> WatcherWidget merender ulang list ID');
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.orange.shade100,
-      child: Text(
-        'List ID (via watch): ${provider.favorites.isEmpty ? "-" : provider.favorites.join(", ")}',
-        style: const TextStyle(fontSize: 16),
       ),
     );
   }
