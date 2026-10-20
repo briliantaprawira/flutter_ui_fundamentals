@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'services/course_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
-import 'screens/home_page.dart';
+import 'screens/main_screen.dart'; // Import MainScreen
 
 void main() {
   final courseService = CourseService();
@@ -11,7 +11,8 @@ void main() {
 
   runApp(
     ChangeNotifierProvider(
-      create: (context) => CourseProvider(repository: courseRepository),
+      // Cascade operator (..) otomatis memanggil loadCourses() sesaat setelah provider dibuat
+      create: (context) => CourseProvider(repository: courseRepository)..loadCourses(),
       child: const MyApp(),
     ),
   );
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(), // Memanggil layar utama dari folder screens
+      home: MainScreen(), // Gerbang masuknya adalah MainScreen dengan TabBar
     );
   }
 }
