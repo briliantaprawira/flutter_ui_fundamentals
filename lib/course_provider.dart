@@ -1,22 +1,45 @@
 import 'package:flutter/material.dart';
+import 'models/course.dart';
+import 'repositories/course_repository.dart';
 
-// TAHAP 5: Membuat class state yang mewarisi ChangeNotifier
+// TAHAP 11: Provider mengelola Async State (Loading, Data, Error)
 class CourseProvider extends ChangeNotifier {
-  // Menggunakan Set (bukan List) agar tidak ada duplikasi ID favorit
-  final Set<String> _favorites = {};
+  // Provider kini bergantung pada Repository untuk mengambil data
+  final CourseRepository repository;
 
-  // Getter untuk membaca data dari luar
+  CourseProvider({required this.repository});
+
+  // State untuk Data Favorit (dari Tahap 5)
+  final Set<String> _favorites = {};
   Set<String> get favorites => _favorites;
 
-  // Method untuk menambah/menghapus favorit
+  // State untuk Async Data Mata Kuliah
+  List<Course> courses = [];
+  bool isLoading = false;
+  String? error;
+
   void toggleFavorite(String courseId) {
     if (_favorites.contains(courseId)) {
-      _favorites.remove(courseId); // Hapus jika sudah ada
+      _favorites.remove(courseId);
     } else {
-      _favorites.add(courseId); // Tambah jika belum ada
+      _favorites.add(courseId);
     }
-
-    // SANGAT PENTING: Memberi tahu UI agar merender ulang bagian yang berubah
     notifyListeners();
+  }
+
+  // Method untuk mengambil data dari Repository
+  Future<void> loadCourses() async {
+    isLoading = true; // Set status ke Loading
+    error = null;     // Bersihkan error sebelumnya (jika ada)
+    notifyListeners(); // Beritahu UI untuk menampilkan animasi Loading
+
+    try {
+      courses = await repository.getCourses(); // Minta data ke Repository
+    } catch (e) {
+      error = e.toString(); // Tangkap error jika terjadi kegagalan
+    } finally {
+      isLoading = false; // Matikan status Loading
+      notifyListeners(); // Beritahu UI bahwa proses selesai (baik sukses maupun error)
+    }
   }
 }

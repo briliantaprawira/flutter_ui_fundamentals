@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
-import 'models/course.dart';
+import 'package:provider/provider.dart';
 import 'services/course_service.dart';
+import 'repositories/course_repository.dart';
+import 'course_provider.dart';
 
 const String studentName = 'Kadek Brilianta Prawira Arta';
 const String studentId = '2415051013';
 
 void main() {
-  runApp(const MyApp());
+  // Menyiapkan Service dan Repository di awal aplikasi
+  final courseService = CourseService();
+  final courseRepository = CourseRepository(courseService);
+
+  runApp(
+    // TAHAP 11: Menyuntikkan Repository ke dalam CourseProvider
+    ChangeNotifierProvider(
+      create: (context) => CourseProvider(repository: courseRepository),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -16,33 +28,25 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Tahap9Page(),
+      home: Tahap11Page(),
     );
   }
 }
 
-class Tahap9Page extends StatefulWidget {
-  const Tahap9Page({super.key});
+class Tahap11Page extends StatefulWidget {
+  const Tahap11Page({super.key});
 
   @override
-  State<Tahap9Page> createState() => _Tahap9PageState();
+  State<Tahap11Page> createState() => _Tahap11PageState();
 }
 
-class _Tahap9PageState extends State<Tahap9Page> {
-  final CourseService _courseService = CourseService();
-  List<Course> _courses = [];
-  bool _isLoading = false;
-
-  Future<void> _fetchData() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final result = await _courseService.loadCourses();
-
-    setState(() {
-      _courses = result;
-      _isLoading = false;
+class _Tahap11PageState extends State<Tahap11Page> {
+  @override
+  void initState() {
+    super.initState();
+    // Meminta Provider memuat data tepat setelah layar pertama kali dirender
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CourseProvider>().loadCourses();
     });
   }
 
@@ -50,8 +54,8 @@ class _Tahap9PageState extends State<Tahap9Page> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 9: Service Layer'),
-        backgroundColor: Colors.brown,
+        title: const Text('Tahap 11: Async State Provider'),
+        backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -66,41 +70,71 @@ class _Tahap9PageState extends State<Tahap9Page> {
             ),
             const SizedBox(height: 20),
 
-            ElevatedButton.icon(
-              onPressed: _fetchData,
-              icon: const Icon(Icons.download),
-              label: const Text('Muat Data dari Service'),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.brown,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16)
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (_courses.isEmpty)
-              const Center(child: Text('Belum ada data. Tekan tombol di atas.'))
-            else
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _courses.length,
-                  itemBuilder: (context, index) {
-                    final course = _courses[index];
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.library_books, color: Colors.brown),
-                        title: Text(course.title),
-                        subtitle: Text('Kode: ${course.code} | ${course.credits} SKS'),
-                        trailing: Text(course.status, style: const TextStyle(fontWeight: FontWeight.bold)),
+            // Consumer mendengarkan perubahan dari CourseProvider
+            Expanded(
+              child: Consumer<CourseProvider>(
+                builder: (context, provider, child) {
+                  // KONDISI 1: STATE LOADING
+                  if (provider.isLoading) {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Sedang memuat data...'),
+                        ],
                       ),
                     );
-                  },
-                ),
-              )
+                  }
+
+                  // KONDISI 2: STATE ERROR
+                  if (provider.error != null) {
+                    return Center(
+                      child: Text(
+                        'Terjadi Kesalahan:\n${provider.error}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.red, fontSize: 16),
+                      ),
+                    );
+                  }
+
+                  // KONDISI 3: STATE KOSONG (SUKSES TAPI TANPA DATA)
+                  if (provider.courses.isEmpty) {
+                    return const Center(child: Text('Data mata kuliah tidak tersedia.'));
+                  }
+
+                  // KONDISI 4: STATE SUKSES (DATA ADA)
+                  return ListView.builder(
+                    itemCount: provider.courses.length,
+                    itemBuilder: (context, index) {
+                      final course = provider.courses[index];
+                      return Card(
+                        elevation: 3,
+                        child: ListTile(
+                          leading: const Icon(Icons.school, color: Colors.deepPurple),
+                          title: Text(course.title),
+                          subtitle: Text('Kode: ${course.code} | ${course.credits} SKS'),
+                          trailing: Text(course.status, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple)),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
+      ),
+      // Tombol refresh
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Memanggil ulang proses load data dengan context.read
+          context.read<CourseProvider>().loadCourses();
+        },
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.refresh),
       ),
     );
   }
