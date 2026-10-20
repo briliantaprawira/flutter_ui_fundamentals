@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
+import 'favorites_page.dart'; // Import halaman favorit
 
 const String studentName = 'Kadek Brilianta Prawira Arta';
 const String studentId = '2415051013';
@@ -26,9 +27,21 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 12: Refactor Folder'),
+        title: const Text('Tahap 13: Shared Favorites'),
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
+        actions: [
+          // TAHAP 13: Tombol untuk membuka halaman Favorit
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FavoritesPage()),
+              );
+            },
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -60,12 +73,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.read<CourseProvider>().loadCourses(),
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.refresh),
       ),
     );
   }

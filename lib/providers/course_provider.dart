@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import '../models/course.dart'; // Tambahkan ../ karena foldernya berbeda
-import '../repositories/course_repository.dart'; // Tambahkan ../
+import '../models/course.dart';
+import '../repositories/course_repository.dart';
 
-// TAHAP 11: Provider mengelola Async State (Loading, Data, Error)
 class CourseProvider extends ChangeNotifier {
-  // Provider kini bergantung pada Repository untuk mengambil data
   final CourseRepository repository;
-
   CourseProvider({required this.repository});
 
-  // State untuk Data Favorit (dari Tahap 5)
   final Set<String> _favorites = {};
   Set<String> get favorites => _favorites;
 
-  // State untuk Async Data Mata Kuliah
+  // TAHAP 13: Helper untuk mengecek apakah suatu course difavoritkan
+  bool isFavorite(String code) => _favorites.contains(code);
+
+  // TAHAP 13: Helper untuk mendapatkan daftar objek Course yang difavoritkan
+  List<Course> get favoriteCourses {
+    return courses.where((c) => _favorites.contains(c.code)).toList();
+  }
+
   List<Course> courses = [];
   bool isLoading = false;
   String? error;
@@ -27,19 +30,17 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Method untuk mengambil data dari Repository
   Future<void> loadCourses() async {
-    isLoading = true; // Set status ke Loading
-    error = null;     // Bersihkan error sebelumnya (jika ada)
-    notifyListeners(); // Beritahu UI untuk menampilkan animasi Loading
-
+    isLoading = true;
+    error = null;
+    notifyListeners();
     try {
-      courses = await repository.getCourses(); // Minta data ke Repository
+      courses = await repository.getCourses();
     } catch (e) {
-      error = e.toString(); // Tangkap error jika terjadi kegagalan
+      error = e.toString();
     } finally {
-      isLoading = false; // Matikan status Loading
-      notifyListeners(); // Beritahu UI bahwa proses selesai (baik sukses maupun error)
+      isLoading = false;
+      notifyListeners();
     }
   }
 }
