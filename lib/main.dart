@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'models/course.dart'; // Import model yang baru dibuat
+import 'models/course.dart';
+import 'services/course_service.dart';
 
 const String studentName = 'Kadek Brilianta Prawira Arta';
 const String studentId = '2415051013';
@@ -15,31 +16,42 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Tahap8Page(),
+      home: Tahap9Page(),
     );
   }
 }
 
-class Tahap8Page extends StatelessWidget {
-  const Tahap8Page({super.key});
+class Tahap9Page extends StatefulWidget {
+  const Tahap9Page({super.key});
+
+  @override
+  State<Tahap9Page> createState() => _Tahap9PageState();
+}
+
+class _Tahap9PageState extends State<Tahap9Page> {
+  final CourseService _courseService = CourseService();
+  List<Course> _courses = [];
+  bool _isLoading = false;
+
+  Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final result = await _courseService.loadCourses();
+
+    setState(() {
+      _courses = result;
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    // TAHAP 8: Simulasi data mentah yang biasanya didapat dari file JSON atau API
-    final Map<String, dynamic> rawJsonData = {
-      "code": "MOB08",
-      "title": "State Management Architecture",
-      "credits": 3,
-      "status": "Active"
-    };
-
-    // Mengubah JSON (Map) menjadi Object Course menggunakan factory fromJson
-    final Course parsedCourse = Course.fromJson(rawJsonData);
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 8: Model Course'),
-        backgroundColor: Colors.blueGrey,
+        title: const Text('Tahap 9: Service Layer'),
+        backgroundColor: Colors.brown,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -52,35 +64,41 @@ class Tahap8Page extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
-            const Text(
-              'Data Hasil Parsing JSON ke Object Model:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-
-            // Menampilkan data yang sudah menjadi Object Course
-            Card(
-              elevation: 4,
-              color: Colors.blueGrey.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Kita tidak lagi memanggil parsedCourse['code'], melainkan langsung menggunakan properti .code
-                    Text('Kode: ${parsedCourse.code}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Text('Judul: ${parsedCourse.title}', style: const TextStyle(fontSize: 18)),
-                    const SizedBox(height: 8),
-                    Text('SKS: ${parsedCourse.credits}', style: const TextStyle(fontSize: 18)),
-                    const SizedBox(height: 8),
-                    Text('Status: ${parsedCourse.status}', style: const TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.bold)),
-                  ],
-                ),
+            ElevatedButton.icon(
+              onPressed: _fetchData,
+              icon: const Icon(Icons.download),
+              label: const Text('Muat Data dari Service'),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.brown,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16)
               ),
             ),
+            const SizedBox(height: 20),
+
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (_courses.isEmpty)
+              const Center(child: Text('Belum ada data. Tekan tombol di atas.'))
+            else
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _courses.length,
+                  itemBuilder: (context, index) {
+                    final course = _courses[index];
+                    return Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.library_books, color: Colors.brown),
+                        title: Text(course.title),
+                        subtitle: Text('Kode: ${course.code} | ${course.credits} SKS'),
+                        trailing: Text(course.status, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    );
+                  },
+                ),
+              )
           ],
         ),
       ),
