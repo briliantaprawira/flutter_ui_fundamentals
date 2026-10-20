@@ -27,7 +27,7 @@ class CourseProvider extends ChangeNotifier {
     } else {
       _favorites.add(courseId);
     }
-    notifyListeners();
+    // notifyListeners(); <--- Buat ini menjadi komentar untuk simulasi error
   }
 
   Future<void> loadCourses() async {
