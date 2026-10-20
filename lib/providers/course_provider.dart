@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'models/course.dart';
-import 'repositories/course_repository.dart';
+import '../models/course.dart'; // Tambahkan ../ karena foldernya berbeda
+import '../repositories/course_repository.dart'; // Tambahkan ../
 
 // TAHAP 11: Provider mengelola Async State (Loading, Data, Error)
 class CourseProvider extends ChangeNotifier {
