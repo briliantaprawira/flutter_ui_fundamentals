@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import 'course_provider.dart'; // Import file yang baru dibuat
+import 'package:provider/provider.dart'; // Import package provider
+import 'course_provider.dart'; // Import file provider yang kita buat di Tahap 5
 
 const String studentName = 'Kadek Brilianta Prawira Arta';
 const String studentId = '2415051013';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    // TAHAP 6: Membungkus aplikasi dengan ChangeNotifierProvider
+    ChangeNotifierProvider(
+      create: (context) => CourseProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -15,34 +22,24 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Tahap5Page(),
+      home: Tahap6Page(),
     );
   }
 }
 
-class Tahap5Page extends StatefulWidget {
-  const Tahap5Page({super.key});
-
-  @override
-  State<Tahap5Page> createState() => _Tahap5PageState();
-}
-
-class _Tahap5PageState extends State<Tahap5Page> {
-  // Inisiasi ChangeNotifier secara manual untuk sementara (Sebelum pakai package Provider di Tahap 6)
-  final CourseProvider courseProvider = CourseProvider();
-
-  @override
-  void dispose() {
-    courseProvider.dispose();
-    super.dispose();
-  }
+// Perhatikan: Kita sekarang bisa menggunakan StatelessWidget, tidak perlu StatefulWidget!
+class Tahap6Page extends StatelessWidget {
+  const Tahap6Page({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Membaca data dari Provider yang sudah dipasang di pucuk aplikasi (main)
+    final courseProvider = Provider.of<CourseProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 5: ChangeNotifier'),
-        backgroundColor: Colors.indigo,
+        title: const Text('Tahap 6: Provider Setup'),
+        backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -57,33 +54,26 @@ class _Tahap5PageState extends State<Tahap5Page> {
             ),
             const SizedBox(height: 30),
 
-            // ListenableBuilder mendengarkan perubahan dari ChangeNotifier (bawaan standar Flutter)
-            ListenableBuilder(
-              listenable: courseProvider,
-              builder: (context, child) {
-                return Container(
-                  padding: const EdgeInsets.all(20),
-                  color: Colors.indigo.shade50,
-                  child: Text(
-                    'Total Favorit: ${courseProvider.favorites.length}\n'
-                        'ID Favorit: ${courseProvider.favorites.join(", ")}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              },
+            Container(
+              padding: const EdgeInsets.all(20),
+              color: Colors.teal.shade50,
+              child: Text(
+                'Total Favorit dari Provider: ${courseProvider.favorites.length}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 30),
 
             ElevatedButton.icon(
               onPressed: () {
-                // Memanggil method yang ada di dalam class CourseProvider
-                courseProvider.toggleFavorite('MOB01');
+                // Memanggil fungsi dari Provider
+                courseProvider.toggleFavorite('MOB_TEST_6');
               },
-              icon: const Icon(Icons.favorite),
-              label: const Text('Toggle Favorit MOB01'),
+              icon: const Icon(Icons.check_circle),
+              label: const Text('Uji Provider Setup'),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo,
+                  backgroundColor: Colors.teal,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16)
               ),
