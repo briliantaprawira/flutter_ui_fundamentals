@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'course_provider.dart'; // Import file yang baru dibuat
 
 const String studentName = 'Kadek Brilianta Prawira Arta';
 const String studentId = '2415051013';
@@ -14,39 +15,35 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Tahap4Page(),
+      home: Tahap5Page(),
     );
   }
 }
 
-class Tahap4Page extends StatefulWidget {
-  const Tahap4Page({super.key});
+class Tahap5Page extends StatefulWidget {
+  const Tahap5Page({super.key});
 
   @override
-  State<Tahap4Page> createState() => _Tahap4PageState();
+  State<Tahap5Page> createState() => _Tahap5PageState();
 }
 
-class _Tahap4PageState extends State<Tahap4Page> {
-  // TAHAP 4: Menggunakan ValueNotifier untuk mengelola satu nilai sederhana
-  final ValueNotifier<int> _favoriteCount = ValueNotifier<int>(0);
+class _Tahap5PageState extends State<Tahap5Page> {
+  // Inisiasi ChangeNotifier secara manual untuk sementara (Sebelum pakai package Provider di Tahap 6)
+  final CourseProvider courseProvider = CourseProvider();
 
   @override
   void dispose() {
-    // Jangan lupa membuang (dispose) notifier saat widget dihancurkan untuk mencegah memory leak
-    _favoriteCount.dispose();
+    courseProvider.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Pesan ini hanya akan dicetak sekali di terminal (membuktikan UI tidak direbuild total)
-    debugPrint('--> build() utama Tahap4Page dijalankan');
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tahap 4: ValueNotifier'),
-        backgroundColor: Colors.amber,
-        foregroundColor: Colors.black,
+        title: const Text('Tahap 5: ChangeNotifier'),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -58,42 +55,36 @@ class _Tahap4PageState extends State<Tahap4Page> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
 
-            // TAHAP 4: ValueListenableBuilder akan mendengarkan perubahan pada _favoriteCount
-            ValueListenableBuilder<int>(
-              valueListenable: _favoriteCount,
-              builder: (context, value, child) {
-                // Pesan ini akan dicetak berulang kali setiap tombol ditekan
-                debugPrint('--> ValueListenableBuilder merender ulang angka $value');
+            // ListenableBuilder mendengarkan perubahan dari ChangeNotifier (bawaan standar Flutter)
+            ListenableBuilder(
+              listenable: courseProvider,
+              builder: (context, child) {
                 return Container(
-                  padding: const EdgeInsets.all(24),
-                  color: Colors.amber.shade100,
-                  child: Column(
-                    children: [
-                      const Text('Jumlah Course Favorit:', style: TextStyle(fontSize: 18)),
-                      Text(
-                        '$value',
-                        style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.amber),
-                      ),
-                    ],
+                  padding: const EdgeInsets.all(20),
+                  color: Colors.indigo.shade50,
+                  child: Text(
+                    'Total Favorit: ${courseProvider.favorites.length}\n'
+                        'ID Favorit: ${courseProvider.favorites.join(", ")}',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
                 );
               },
             ),
-
             const SizedBox(height: 30),
 
             ElevatedButton.icon(
               onPressed: () {
-                // Mengubah value secara langsung, TANPA PERLU MEMANGGIL setState()
-                _favoriteCount.value++;
+                // Memanggil method yang ada di dalam class CourseProvider
+                courseProvider.toggleFavorite('MOB01');
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Tambah Nilai Favorit'),
+              icon: const Icon(Icons.favorite),
+              label: const Text('Toggle Favorit MOB01'),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.indigo,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16)
               ),
             ),
