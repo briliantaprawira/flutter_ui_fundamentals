@@ -1,8 +1,25 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
 
+const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
+
+Future<void> testFetchCourses() async {
+  try {
+    final response = await http.get(Uri.parse(apiUrl));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List<dynamic>;
+      debugPrint('Berhasil! Jumlah course dari API: ${data.length}');
+    } else {
+      debugPrint('Error HTTP: ${response.statusCode}');
+    }
+  } catch (e) {
+    debugPrint('Error jaringan: $e');
+  }
+}
 class CourseListScreen extends StatelessWidget {
   const CourseListScreen({super.key});
 
@@ -10,9 +27,15 @@ class CourseListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Courses'),
-        backgroundColor: Colors.blue.shade700,
-        foregroundColor: Colors.white,
+        title: const Text('Course Explorer'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            onPressed: () {
+              testFetchCourses();
+            },
+          )
+        ],
       ),
       body: Consumer<CourseProvider>(
         builder: (context, provider, child) {
