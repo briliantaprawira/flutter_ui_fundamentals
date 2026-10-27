@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
+import '../models/course.dart'; // Tambahan wajib untuk mengenali class Course
 
 const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
 
@@ -11,8 +12,19 @@ Future<void> testFetchCourses() async {
   try {
     final response = await http.get(Uri.parse(apiUrl));
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body) as List<dynamic>;
-      debugPrint('Berhasil! Jumlah course dari API: ${data.length}');
+      final List<dynamic> data = jsonDecode(response.body);
+
+      // TAHAP 3: Konversi JSON List menjadi List<Course>
+      final List<Course> apiCourses = data
+          .map((json) => Course.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      debugPrint('Berhasil parse ${apiCourses.length} course!');
+
+      // Tampilkan 3 data pertama di console sesuai instruksi
+      for (int i = 0; i < 3 && i < apiCourses.length; i++) {
+        debugPrint('${i + 1}. ${apiCourses[i].code} - ${apiCourses[i].title} (${apiCourses[i].status})');
+      }
     } else {
       debugPrint('Error HTTP: ${response.statusCode}');
     }
@@ -20,6 +32,7 @@ Future<void> testFetchCourses() async {
     debugPrint('Error jaringan: $e');
   }
 }
+
 class CourseListScreen extends StatelessWidget {
   const CourseListScreen({super.key});
 

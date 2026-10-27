@@ -1,24 +1,34 @@
-// TAHAP 8: Mendefinisikan Model Data Course
 class Course {
+  final int? id; // id dari database (bisa null kalau baru dibuat)
   final String code;
   final String title;
   final int credits;
   final String status;
 
-  Course({
+  const Course({
+    this.id,
     required this.code,
     required this.title,
     required this.credits,
-    required this.status,
+    this.status = 'planned',
   });
 
-  // Factory constructor untuk melakukan konversi dari Map (JSON) menjadi Object Course
+  // Fungsi untuk mengubah JSON dari API menjadi objek Course Dart
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
+      id: json['id'] as int?,
       code: json['code'] as String,
       title: json['title'] as String,
       credits: json['credits'] as int,
-      status: json['status'] as String,
+      status: (json['status'] as String?) ?? 'planned',
     );
   }
+
+  // Fungsi untuk mengubah objek Course Dart menjadi JSON untuk dikirim ke API
+  Map<String, dynamic> toJson() => {
+    'code': code,
+    'title': title,
+    'credits': credits,
+    'status': status,
+  };
 }
