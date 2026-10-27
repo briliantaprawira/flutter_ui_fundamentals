@@ -1,20 +1,14 @@
-# flutter_ui_fundamentals
+# Course Explorer v2
 
-A new Flutter project.
+Aplikasi manajemen mata kuliah berbasis Flutter dengan implementasi:
+- Arsitektur Provider dan Repository Pattern
+- Operasi CRUD via REST API
+- Tampilan UI yang responsif
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Cara Menjalankan
+1. Clone repositori ini.
+2. Jalankan `flutter pub get`.
+3. Jalankan `flutter run`.
 
 ## Dokumentasi REST API (Tahap 1)
 
