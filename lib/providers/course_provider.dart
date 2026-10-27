@@ -58,4 +58,18 @@ class CourseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+  // TAHAP 6: Fungsi penambah data di Provider
+  Future<void> addCourse(Course course) async {
+    try {
+      // Kirim data ke API
+      final newCourse = await repository.addCourse(course);
+
+      // Jika berhasil, tambahkan data tersebut ke daftar lokal di layar
+      _courses.add(newCourse);
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
 }

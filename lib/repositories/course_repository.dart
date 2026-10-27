@@ -7,4 +7,7 @@ class CourseRepository {
   final CourseApiService service;
 
   Future<List<Course>> getCourses() => service.getCourses();
+
+  // TAHAP 6: Menghubungkan fungsi POST
+  Future<Course> addCourse(Course course) => service.addCourse(course);
 }
