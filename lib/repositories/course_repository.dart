@@ -10,4 +10,7 @@ class CourseRepository {
 
   // TAHAP 6: Menghubungkan fungsi POST
   Future<Course> addCourse(Course course) => service.addCourse(course);
+
+  // TAHAP 7: Menghubungkan fungsi DELETE
+  Future<void> deleteCourse(int id) => service.deleteCourse(id);
 }

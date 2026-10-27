@@ -31,4 +31,14 @@ class CourseApiService {
       throw Exception('Gagal menambahkan course');
     }
   }
+  // TAHAP 7: Fungsi DELETE untuk menghapus data
+  Future<void> deleteCourse(int id) async {
+    // Endpoint delete biasanya membutuhkan ID spesifik di URL
+    final response = await http.delete(Uri.parse('$baseUrl/courses/$id'));
+
+    // Status 200 (OK) atau 204 (No Content) menandakan berhasil dihapus
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Gagal menghapus course');
+    }
+  }
 }

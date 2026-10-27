@@ -72,4 +72,25 @@ class CourseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+  // TAHAP 7: Fungsi penghapus data di Provider
+  Future<void> deleteCourse(Course course) async {
+    // Pastikan course memiliki ID dari database sebelum dihapus
+    if (course.id == null) return;
+
+    try {
+      // 1. Hapus data dari API (database internet)
+      await repository.deleteCourse(course.id!);
+
+      // 2. Hapus data dari daftar utama di layar
+      _courses.removeWhere((c) => c.id == course.id);
+
+      // 3. Hapus juga dari daftar favorit (jika kebetulan sedang difavoritkan)
+      _favoriteCourses.removeWhere((c) => c.id == course.id);
+
+      notifyListeners(); // Perbarui UI agar kartu course langsung hilang
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
 }
