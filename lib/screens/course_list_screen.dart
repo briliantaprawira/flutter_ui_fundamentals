@@ -1,3 +1,4 @@
+import 'course_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/course_provider.dart';
@@ -28,11 +29,19 @@ class CourseListScreen extends StatelessWidget {
           );
         },
       ),
+      // Pastikan ada import ini di bagian atas course_list_screen.dart:
+      // import 'course_form_screen.dart';
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.read<CourseProvider>().loadCourses(),
+        onPressed: () {
+          // Membuka form dalam mode Tambah Data (course kosong)
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CourseFormScreen()),
+          );
+        },
         backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
-        child: const Icon(Icons.refresh),
+        child: const Icon(Icons.add), // Berubah jadi tombol +
       ),
     );
   }
