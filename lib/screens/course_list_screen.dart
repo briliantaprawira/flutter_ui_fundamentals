@@ -20,12 +20,17 @@ class CourseListScreen extends StatelessWidget {
           if (provider.error != null) return Center(child: Text('Error: ${provider.error}', style: const TextStyle(color: Colors.red)));
           if (provider.courses.isEmpty) return const Center(child: Text('Data kosong.'));
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: provider.courses.length,
-            itemBuilder: (context, index) {
-              return CourseCard(course: provider.courses[index]);
-            },
+          // TAHAP 10: Membungkus ListView dengan RefreshIndicator
+          return RefreshIndicator(
+            // Fungsi ini akan dipanggil saat pengguna menarik layar ke bawah
+            onRefresh: () => context.read<CourseProvider>().loadCourses(),
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: provider.courses.length,
+              itemBuilder: (context, index) {
+                return CourseCard(course: provider.courses[index]);
+              },
+            ),
           );
         },
       ),
