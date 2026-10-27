@@ -93,4 +93,30 @@ class CourseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+  // TAHAP 8: Fungsi update data di Provider
+  Future<void> updateCourse(Course course) async {
+    try {
+      // 1. Kirim data pembaruan ke API
+      final updatedCourse = await repository.updateCourse(course);
+
+      // 2. Cari posisi (index) data lama di dalam list _courses
+      final index = _courses.indexWhere((c) => c.id == course.id);
+
+      if (index != -1) {
+        // 3. Timpa data lama dengan data baru hasil balikan dari server
+        _courses[index] = updatedCourse;
+
+        // 4. Perbarui juga di daftar favorit jika mata kuliah tersebut disukai
+        final favIndex = _favoriteCourses.indexWhere((c) => c.id == course.id);
+        if (favIndex != -1) {
+          _favoriteCourses[favIndex] = updatedCourse;
+        }
+
+        notifyListeners(); // Render ulang UI agar perubahan teks terlihat
+      }
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
 }

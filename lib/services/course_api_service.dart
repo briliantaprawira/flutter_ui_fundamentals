@@ -41,4 +41,22 @@ class CourseApiService {
       throw Exception('Gagal menghapus course');
     }
   }
+  // TAHAP 8: Fungsi PUT untuk update data
+  Future<Course> updateCourse(Course course) async {
+    if (course.id == null) {
+      throw Exception('ID tidak boleh null untuk proses update');
+    }
+
+    final response = await http.put(
+      Uri.parse('$baseUrl/courses/${course.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(course.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      return Course.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    } else {
+      throw Exception('Gagal memperbarui course');
+    }
+  }
 }
