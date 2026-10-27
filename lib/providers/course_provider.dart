@@ -3,43 +3,58 @@ import '../models/course.dart';
 import '../repositories/course_repository.dart';
 
 class CourseProvider extends ChangeNotifier {
-  final CourseRepository repository;
   CourseProvider({required this.repository});
 
-  final Set<String> _favorites = {};
-  Set<String> get favorites => _favorites;
+  final CourseRepository repository;
 
-  // TAHAP 13: Helper untuk mengecek apakah suatu course difavoritkan
-  bool isFavorite(String code) => _favorites.contains(code);
+  List<Course> _courses = [];
+  List<Course> get courses => _courses;
 
-  // TAHAP 13: Helper untuk mendapatkan daftar objek Course yang difavoritkan
-  List<Course> get favoriteCourses {
-    return courses.where((c) => _favorites.contains(c.code)).toList();
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  String? _error;
+  String? get error => _error;
+
+  // === FITUR FAVORIT YANG DISESUAIKAN ===
+  final List<Course> _favoriteCourses = [];
+
+  List<Course> get favoriteCourses => _favoriteCourses;
+  List<Course> get favorites => _favoriteCourses;
+
+  // Menerima String (kode) dari UI
+  bool isFavorite(String code) {
+    return _favoriteCourses.any((c) => c.code == code);
   }
 
-  List<Course> courses = [];
-  bool isLoading = false;
-  String? error;
-
-  void toggleFavorite(String courseId) {
-    if (_favorites.contains(courseId)) {
-      _favorites.remove(courseId);
+  // Menerima String (kode) dari UI
+  void toggleFavorite(String code) {
+    if (isFavorite(code)) {
+      _favoriteCourses.removeWhere((c) => c.code == code);
     } else {
-      _favorites.add(courseId);
+      // Cari course asli dari daftar _courses berdasarkan kodenya
+      try {
+        final courseToAdd = _courses.firstWhere((c) => c.code == code);
+        _favoriteCourses.add(courseToAdd);
+      } catch (e) {
+        debugPrint('Course tidak ditemukan');
+      }
     }
-    // notifyListeners(); <--- Buat ini menjadi komentar untuk simulasi error
+    notifyListeners();
   }
+  // =======================================
 
   Future<void> loadCourses() async {
-    isLoading = true;
-    error = null;
+    _isLoading = true;
+    _error = null;
     notifyListeners();
+
     try {
-      courses = await repository.getCourses();
+      _courses = await repository.getCourses();
     } catch (e) {
-      error = e.toString();
+      _error = e.toString();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
