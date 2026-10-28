@@ -1,19 +1,24 @@
 import '../models/course.dart';
-import '../services/course_api_service.dart';
+import '../services/course_supabase_service.dart';
 
 class CourseRepository {
-  CourseRepository(this.service);
+  final CourseSupabaseService api;
 
-  final CourseApiService service;
+  CourseRepository(this.api);
 
-  Future<List<Course>> getCourses() => service.getCourses();
+  Future<List<Course>> getCourses() async {
+    return await api.getCourses();
+  }
 
-  // TAHAP 6: Menghubungkan fungsi POST
-  Future<Course> addCourse(Course course) => service.addCourse(course);
+  Future<Course> createCourse(Course course) async {
+    return await api.createCourse(course);
+  }
 
-  // TAHAP 7: Menghubungkan fungsi DELETE
-  Future<void> deleteCourse(int id) => service.deleteCourse(id);
+  Future<void> updateCourse(int id, Course course) async {
+    await api.updateCourse(id, course);
+  }
 
-  // TAHAP 8: Menghubungkan fungsi PUT
-  Future<Course> updateCourse(Course course) => service.updateCourse(course);
+  Future<void> deleteCourse(int id) async {
+    await api.deleteCourse(id);
+  }
 }

@@ -16,6 +16,20 @@ class CourseDetailPage extends StatelessWidget {
         title: Text('Detail: ${course.code}'),
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
+        // TAHAP 15: Menambahkan tombol Hapus (Delete) di pojok kanan atas
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            tooltip: 'Hapus Mata Kuliah',
+            onPressed: () {
+              // Memanggil fungsi deleteCourse dari Provider
+              context.read<CourseProvider>().deleteCourse(course);
+              
+              // Menutup halaman detail dan kembali ke halaman utama setelah dihapus
+              Navigator.pop(context); 
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
