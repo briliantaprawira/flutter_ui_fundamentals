@@ -4,7 +4,9 @@ import 'package:supabase_flutter/supabase_flutter.dart'; // Tambahan import Supa
 import 'services/course_supabase_service.dart'; // Ubah import ke layanan Supabase
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
-import 'screens/main_screen.dart'; 
+import 'screens/main_screen.dart';
+import 'package:flutter_ui_fundamentals/services/auth_service.dart';
+import 'package:flutter_ui_fundamentals/pages/login_page.dart';
 
 void main() async {
   // TAHAP 10: Inisialisasi Supabase wajib dilakukan sebelum runApp
@@ -35,9 +37,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainScreen(),
+      title: 'Course Explorer',
+      // ... konfigurasi theme kamu sebelumnya ...
+
+      // Ubah bagian ini:
+      home: AuthService.instance.isLoggedIn
+          ? const MainScreen() // MainScreen adalah halaman beranda Course Explorer-mu
+          : const LoginPage(),
     );
   }
 }
