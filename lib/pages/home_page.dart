@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/profile_service.dart';
-import 'login_page.dart';
+import '../services/notification_service.dart';
 import '../widgets/role_guard.dart';
+import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +19,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _profileFuture = ProfileService().getMyProfile();
+    // Praktik 10: Inisialisasi listener notifikasi
+    NotificationService.instance.init();
   }
 
   Future<void> _logout() async {
@@ -39,14 +42,12 @@ class _HomePageState extends State<HomePage> {
             body: Center(child: CircularProgressIndicator()),
           );
         }
-
         final p = snap.data;
         if (snap.hasError || p == null) {
           return const Scaffold(
             body: Center(child: Text('Gagal memuat profil')),
           );
         }
-
         return Scaffold(
           appBar: AppBar(
             title: Text('KosFinder (${p.role})'),
@@ -82,16 +83,11 @@ class _HomePageState extends State<HomePage> {
                 ),
             ],
           ),
-          // Tombol ini HANYA muncul untuk role owner atau admin
           floatingActionButton: RoleGuard(
             role: p.role,
             allowed: const ['owner', 'admin'],
             child: FloatingActionButton.extended(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Buka halaman Add Kos')),
-                );
-              },
+              onPressed: () {},
               icon: const Icon(Icons.add_home),
               label: const Text('Tambah Kos'),
             ),
